@@ -20,7 +20,7 @@
 <body>
     <div id="overlay">
         <h1 class="title">שחר & חנית</h1>
-        <p id="status" style="font-size: 1.2em; color: #ecf0f1;">אוסף את הרגעים היפים... (0/20)</p>
+        <p id="status" style="font-size: 1.1em; color: #ecf0f1;">בודק את אלבום הזיכרונות...</p>
         <button id="btn" class="start-btn" style="display:none;" onclick="startExperience()">לחצו כאן להתחלה</button>
     </div>
     <audio id="bgMusic" src="music.mp3" loop></audio>
@@ -31,39 +31,49 @@
     <script>
         const totalImages = 20; 
         const container = document.getElementById('slideshow');
-        let loadedCount = 0;
-        const imageElements = [];
+        const extensions = ['jpg', 'JPG', 'jpeg', 'png', 'PNG'];
+        let processedCount = 0;
+        const finalImages = [];
 
         function init() {
             for (let i = 0; i <= totalImages; i++) {
-                const img = new Image();
-                // נסיון טעינה עם טיפול בשגיאות
-                img.onload = () => handleLoad(i, img);
-                img.onerror = () => {
-                    // אם נכשל ב-jpg, ננסה JPG (למקרה של רגישות לאותיות)
-                    const altImg = new Image();
-                    altImg.onload = () => handleLoad(i, altImg);
-                    altImg.onerror = () => handleLoad(i, null);
-                    altImg.src = `${i}.JPG`;
-                };
-                img.src = `${i}.jpg`;
+                tryLoad(i, 0);
             }
         }
 
-        function handleLoad(index, imgObj) {
-            if (imgObj) imageElements[index] = imgObj;
-            loadedCount++;
-            document.getElementById('status').innerText = `אוסף את הרגעים היפים... (${loadedCount}/${totalImages + 1})`;
-            if (loadedCount > totalImages) build();
+        function tryLoad(index, extIndex) {
+            if (extIndex >= extensions.length) {
+                processedCount++;
+                updateStatus();
+                return;
+            }
+
+            const img = new Image();
+            img.onload = function() {
+                finalImages[index] = img.src;
+                processedCount++;
+                updateStatus();
+            };
+            img.onerror = function() {
+                tryLoad(index, extIndex + 1);
+            };
+            img.src = `${index}.${extensions[extIndex]}`;
+        }
+
+        function updateStatus() {
+            document.getElementById('status').innerText = `מעבד תמונה ${processedCount} מתוך ${totalImages + 1}...`;
+            if (processedCount > totalImages) {
+                build();
+            }
         }
 
         function build() {
-            imageElements.forEach(img => {
-                if (img) {
+            finalImages.forEach(src => {
+                if (src) {
                     let div = document.createElement('div');
                     div.className = 'mySlides fade';
                     let slideImg = document.createElement('img');
-                    slideImg.src = img.src;
+                    slideImg.src = src;
                     div.appendChild(slideImg);
                     container.appendChild(div);
                 }

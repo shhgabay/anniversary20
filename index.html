@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>20 שנה לשחר וחנית</title>
+    <style>
+        @font-face {
+            font-family: 'MyCustomFont';
+            src: url('myfont.otf') format('opentype');
+        }
+
+        body { 
+            background: radial-gradient(circle, #2c3e50, #000000); 
+            color: white; 
+            font-family: 'MyCustomFont', sans-serif; 
+            text-align: center; 
+            margin: 0; padding: 0;
+            overflow: hidden; height: 100vh; 
+            display: flex; flex-direction: column; justify-content: center; 
+        }
+
+        /* מסך פתיחה חגיגי */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 10;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        .start-btn {
+            padding: 20px 40px; font-size: 1.5em; font-family: 'MyCustomFont', sans-serif;
+            background: #f1c40f; color: black; border: none; border-radius: 50px;
+            cursor: pointer; box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
+            transition: 0.3s;
+        }
+        .start-btn:hover { transform: scale(1.1); background: #fff; }
+
+        .title { font-size: 5em; font-weight: bold; margin-bottom: 5px; color: #f1c40f; text-shadow: 2px 2px 20px rgba(241, 196, 15, 0.4); }
+        .subtitle { font-size: 2em; color: #ecf0f1; margin-bottom: 30px; }
+        .slideshow-container { position: relative; max-width: 85vh; margin: auto; border: 6px solid rgba(255, 255, 255, 0.9); box-shadow: 0 0 50px rgba(0,0,0,0.8); border-radius: 20px; overflow: hidden; display: none; }
+        .mySlides { display: none; }
+        img { width: 100%; height: 65vh; object-fit: cover; }
+        .fade { animation: fadeEffect 2s ease-in-out; }
+        @keyframes fadeEffect { from { opacity: 0.3; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">
+        <h1 class="title">שחר & חנית</h1>
+        <p class="subtitle">20 שנות נישואין מאושרות</p>
+        <button class="start-btn" onclick="startExperience()">לחצו כאן כדי להתחיל</button>
+    </div>
+
+    <audio id="bgMusic" src="music.mp3" loop></audio>
+
+    <div id="mainContent" style="display:none;">
+        <div class="title">שחר & חנית</div>
+        <div class="subtitle">חוגגים 20 שנות אהבה</div>
+        <div class="slideshow-container" id="slideshow" style="display:block;">
+            </div>
+    </div>
+
+    <script>
+        const totalImages = 20; 
+        const container = document.getElementById('slideshow');
+
+        function startExperience() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            let audio = document.getElementById('bgMusic');
+            audio.play();
+            showSlides();
+        }
+
+        for (let i = 0; i <= totalImages; i++) {
+            let div = document.createElement('div');
+            div.className = 'mySlides fade';
+            let img = document.createElement('img');
+            img.src = `${i}.jpg`; 
+            img.onerror = function() { this.parentElement.remove(); };
+            div.appendChild(img);
+            container.appendChild(div);
+        }
+
+        let slideIndex = 0;
+        function showSlides() {
+            let slides = document.getElementsByClassName("mySlides");
+            if (slides.length === 0) return;
+            for (let i = 0; i < slides.length; i++) { slides[i].style.display = "none"; }
+            slideIndex++;
+            if (slideIndex > slides.length) { slideIndex = 1 }
+            slides[slideIndex-1].style.display = "block";
+            let displayTime = (slideIndex === 1) ? 8000 : 4000;
+            setTimeout(showSlides, displayTime);
+        }
+    </script>
+</body>
+</html>

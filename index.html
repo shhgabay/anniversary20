@@ -1,105 +1,71 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>20 שנה לשחר וחנית</title>
-    <style>
-        @font-face { font-family: 'MyCustomFont'; src: url('myfont.otf') format('opentype'); }
-        body { background: #000; color: white; font-family: 'MyCustomFont', sans-serif; text-align: center; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; justify-content: center; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 20; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
-        .start-btn { padding: 15px 35px; font-size: 1.3em; font-family: inherit; background: #f1c40f; color: black; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px rgba(241, 196, 15, 0.5); margin-top: 20px; }
-        .title { font-size: 10vw; font-weight: bold; color: #f1c40f; text-shadow: 2px 2px 15px rgba(241, 196, 15, 0.4); margin: 10px 0; }
-        .slideshow-container { position: relative; width: 100vw; height: 70vh; margin: auto; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .mySlides { display: none; width: 100%; height: 100%; }
-        img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; margin: auto; display: block; }
-        .fade { animation: fadeEffect 1.5s ease-in-out; }
-        @keyframes fadeEffect { from { opacity: 0; } to { opacity: 1; } }
-    </style>
-</head>
-<body>
-    <div id="overlay">
-        <h1 class="title">שחר & חנית</h1>
-        <p id="status" style="font-size: 1.1em; color: #ecf0f1;">בודק את אלבום הזיכרונות...</p>
-        <button id="btn" class="start-btn" style="display:none;" onclick="startExperience()">לחצו כאן להתחלה</button>
-    </div>
-    <audio id="bgMusic" src="music.mp3" loop></audio>
-    <div id="mainContent" style="display:none;">
-        <div class="title">שחר & חנית</div>
-        <div class="slideshow-container" id="slideshow"></div>
-    </div>
-    <script>
-        const totalImages = 20; 
-        const container = document.getElementById('slideshow');
-        const extensions = ['jpg', 'JPG', 'jpeg', 'png', 'PNG'];
-        let processedCount = 0;
-        const finalImages = [];
+<script>
+    const totalImages = 19; // שיניתי ל-19 כי זה מה שיש לך בתיקייה
+    const container = document.getElementById('slideshow');
+    const extensions = ['jpg', 'JPG', 'png', 'PNG', 'jpeg'];
+    let processedCount = 0;
+    const finalImages = [];
 
-        function init() {
-            for (let i = 0; i <= totalImages; i++) {
-                tryLoad(i, 0);
+    function init() {
+        for (let i = 0; i <= totalImages; i++) {
+            tryLoad(i, 0);
+        }
+    }
+
+    function tryLoad(index, extIndex) {
+        if (extIndex >= extensions.length) {
+            processedCount++;
+            updateStatus();
+            return;
+        }
+
+        const img = new Image();
+        img.onload = function() {
+            finalImages[index] = img.src;
+            processedCount++;
+            updateStatus();
+        };
+        img.onerror = function() {
+            tryLoad(index, extIndex + 1);
+        };
+        img.src = `${index}.${extensions[extIndex]}`;
+    }
+
+    function updateStatus() {
+        document.getElementById('status').innerText = `מעבד רגעים... (${processedCount}/${totalImages + 1})`;
+        if (processedCount > totalImages) build();
+    }
+
+    function build() {
+        finalImages.forEach(src => {
+            if (src) {
+                let div = document.createElement('div');
+                div.className = 'mySlides fade';
+                let slideImg = document.createElement('img');
+                slideImg.src = src;
+                div.appendChild(slideImg);
+                container.appendChild(div);
             }
-        }
+        });
+        document.getElementById('status').style.display = 'none';
+        document.getElementById('btn').style.display = 'block';
+    }
 
-        function tryLoad(index, extIndex) {
-            if (extIndex >= extensions.length) {
-                processedCount++;
-                updateStatus();
-                return;
-            }
+    function startExperience() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        document.getElementById('bgMusic').play();
+        showSlides();
+    }
 
-            const img = new Image();
-            img.onload = function() {
-                finalImages[index] = img.src;
-                processedCount++;
-                updateStatus();
-            };
-            img.onerror = function() {
-                tryLoad(index, extIndex + 1);
-            };
-            img.src = `${index}.${extensions[extIndex]}`;
-        }
-
-        function updateStatus() {
-            document.getElementById('status').innerText = `מעבד תמונה ${processedCount} מתוך ${totalImages + 1}...`;
-            if (processedCount > totalImages) {
-                build();
-            }
-        }
-
-        function build() {
-            finalImages.forEach(src => {
-                if (src) {
-                    let div = document.createElement('div');
-                    div.className = 'mySlides fade';
-                    let slideImg = document.createElement('img');
-                    slideImg.src = src;
-                    div.appendChild(slideImg);
-                    container.appendChild(div);
-                }
-            });
-            document.getElementById('status').style.display = 'none';
-            document.getElementById('btn').style.display = 'block';
-        }
-
-        function startExperience() {
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
-            document.getElementById('bgMusic').play().catch(e => console.log("Music blocked"));
-            showSlides();
-        }
-
-        let slideIndex = 0;
-        function showSlides() {
-            let slides = document.getElementsByClassName("mySlides");
-            if (slides.length === 0) return;
-            for (let i = 0; i < slides.length; i++) slides[i].style.display = "none";
-            slideIndex++;
-            if (slideIndex > slides.length) slideIndex = 1;
-            slides[slideIndex-1].style.display = "block";
-            setTimeout(showSlides, slideIndex === 1 ? 8000 : 4000);
-        }
-        init();
-    </script>
-</body>
-</html>
+    let slideIndex = 0;
+    function showSlides() {
+        let slides = document.getElementsByClassName("mySlides");
+        if (slides.length === 0) return;
+        for (let i = 0; i < slides.length; i++) slides[i].style.display = "none";
+        slideIndex++;
+        if (slideIndex > slides.length) slideIndex = 1;
+        slides[slideIndex-1].style.display = "block";
+        setTimeout(showSlides, slideIndex === 1 ? 8000 : 4000);
+    }
+    init();
+</script>

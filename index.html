@@ -5,99 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>20 שנה לשחר וחנית</title>
     <style>
-        @font-face {
-            font-family: 'MyCustomFont';
-            src: url('myfont.otf') format('opentype');
-        }
-
-        body { 
-            background: #000; 
-            color: white; 
-            font-family: 'MyCustomFont', sans-serif; 
-            text-align: center; 
-            margin: 0; padding: 0;
-            overflow: hidden; height: 100vh; 
-            display: flex; flex-direction: column; justify-content: center; 
-        }
-
-        #overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 20;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 20px;
-        }
-
-        .start-btn {
-            padding: 15px 35px; font-size: 1.3em; font-family: inherit;
-            background: #f1c40f; color: black; border: none; border-radius: 50px;
-            cursor: pointer; box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
-            margin-top: 20px;
-        }
-
+        @font-face { font-family: 'MyCustomFont'; src: url('myfont.otf') format('opentype'); }
+        body { background: #000; color: white; font-family: 'MyCustomFont', sans-serif; text-align: center; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 20; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .start-btn { padding: 15px 35px; font-size: 1.3em; font-family: inherit; background: #f1c40f; color: black; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px rgba(241, 196, 15, 0.5); margin-top: 20px; }
         .title { font-size: 10vw; font-weight: bold; color: #f1c40f; text-shadow: 2px 2px 15px rgba(241, 196, 15, 0.4); margin: 10px 0; }
-        
-        .slideshow-container { 
-            position: relative; width: 100vw; height: 70vh; 
-            margin: auto; overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-        }
-
+        .slideshow-container { position: relative; width: 100vw; height: 70vh; margin: auto; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .mySlides { display: none; width: 100%; height: 100%; }
-        
-        img { 
-            max-width: 100%; 
-            max-height: 100%; 
-            width: auto; 
-            height: auto; 
-            object-fit: contain; 
-            margin: auto;
-            display: block;
-        }
-
+        img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; margin: auto; display: block; }
         .fade { animation: fadeEffect 1.5s ease-in-out; }
         @keyframes fadeEffect { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
-
     <div id="overlay">
         <h1 class="title">שחר & חנית</h1>
-        <p id="status" style="font-size: 1.2em; color: #ecf0f1;">מכין את הזיכרונות...</p>
+        <p id="status" style="font-size: 1.2em; color: #ecf0f1;">אוסף את הרגעים היפים... (0/20)</p>
         <button id="btn" class="start-btn" style="display:none;" onclick="startExperience()">לחצו כאן להתחלה</button>
     </div>
-
     <audio id="bgMusic" src="music.mp3" loop></audio>
-
     <div id="mainContent" style="display:none;">
         <div class="title">שחר & חנית</div>
         <div class="slideshow-container" id="slideshow"></div>
     </div>
-
     <script>
         const totalImages = 20; 
         const container = document.getElementById('slideshow');
-        const images = [];
         let loadedCount = 0;
+        const imageElements = [];
 
-        // טעינה מוקדמת ושמירה על הסדר
         function init() {
             for (let i = 0; i <= totalImages; i++) {
                 const img = new Image();
-                img.src = `${i}.jpg`;
-                images[i] = img; // שומר מקום במערך לפי המספר
-                
-                img.onload = img.onerror = () => {
-                    loadedCount++;
-                    if (loadedCount > totalImages) {
-                        buildSlideshow();
-                    }
+                // נסיון טעינה עם טיפול בשגיאות
+                img.onload = () => handleLoad(i, img);
+                img.onerror = () => {
+                    // אם נכשל ב-jpg, ננסה JPG (למקרה של רגישות לאותיות)
+                    const altImg = new Image();
+                    altImg.onload = () => handleLoad(i, altImg);
+                    altImg.onerror = () => handleLoad(i, null);
+                    altImg.src = `${i}.JPG`;
                 };
+                img.src = `${i}.jpg`;
             }
         }
 
-        function buildSlideshow() {
-            images.forEach(img => {
-                if (img.complete && img.naturalWidth !== 0) {
+        function handleLoad(index, imgObj) {
+            if (imgObj) imageElements[index] = imgObj;
+            loadedCount++;
+            document.getElementById('status').innerText = `אוסף את הרגעים היפים... (${loadedCount}/${totalImages + 1})`;
+            if (loadedCount > totalImages) build();
+        }
+
+        function build() {
+            imageElements.forEach(img => {
+                if (img) {
                     let div = document.createElement('div');
                     div.className = 'mySlides fade';
                     let slideImg = document.createElement('img');
@@ -113,7 +75,7 @@
         function startExperience() {
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
-            document.getElementById('bgMusic').play();
+            document.getElementById('bgMusic').play().catch(e => console.log("Music blocked"));
             showSlides();
         }
 
@@ -121,14 +83,12 @@
         function showSlides() {
             let slides = document.getElementsByClassName("mySlides");
             if (slides.length === 0) return;
-            for (let i = 0; i < slides.length; i++) { slides[i].style.display = "none"; }
+            for (let i = 0; i < slides.length; i++) slides[i].style.display = "none";
             slideIndex++;
-            if (slideIndex > slides.length) { slideIndex = 1 }
+            if (slideIndex > slides.length) slideIndex = 1;
             slides[slideIndex-1].style.display = "block";
-            let displayTime = (slideIndex === 1) ? 8000 : 4000;
-            setTimeout(showSlides, displayTime);
+            setTimeout(showSlides, slideIndex === 1 ? 8000 : 4000);
         }
-
         init();
     </script>
 </body>

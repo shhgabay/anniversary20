@@ -35,7 +35,6 @@
         }
 
         .title { font-size: 10vw; font-weight: bold; color: #f1c40f; text-shadow: 2px 2px 15px rgba(241, 196, 15, 0.4); margin: 10px 0; }
-        .subtitle { font-size: 5vw; color: #ecf0f1; margin-bottom: 20px; }
         
         .slideshow-container { 
             position: relative; width: 100vw; height: 70vh; 
@@ -63,8 +62,8 @@
 
     <div id="overlay">
         <h1 class="title">שחר & חנית</h1>
-        <p class="subtitle">20 שנות נישואין מאושרות</p>
-        <button id="btn" class="start-btn" onclick="startExperience()">טוען חוויות...</button>
+        <p id="status" style="font-size: 1.2em; color: #ecf0f1;">מכין את הזיכרונות...</p>
+        <button id="btn" class="start-btn" style="display:none;" onclick="startExperience()">לחצו כאן להתחלה</button>
     </div>
 
     <audio id="bgMusic" src="music.mp3" loop></audio>
@@ -77,50 +76,44 @@
     <script>
         const totalImages = 20; 
         const container = document.getElementById('slideshow');
-        let imagesProcessed = 0;
+        const images = [];
+        let loadedCount = 0;
 
-        function preloadAndBuild() {
+        // טעינה מוקדמת ושמירה על הסדר
+        function init() {
             for (let i = 0; i <= totalImages; i++) {
                 const img = new Image();
-                const imgSrc = `${i}.jpg`;
+                img.src = `${i}.jpg`;
+                images[i] = img; // שומר מקום במערך לפי המספר
                 
-                img.onload = function() {
-                    addSlide(imgSrc);
-                    checkProgress();
+                img.onload = img.onerror = () => {
+                    loadedCount++;
+                    if (loadedCount > totalImages) {
+                        buildSlideshow();
+                    }
                 };
-                
-                img.onerror = function() {
-                    console.log("Missing image: " + imgSrc);
-                    checkProgress();
-                };
-                
-                img.src = imgSrc;
             }
         }
 
-        function addSlide(src) {
-            let div = document.createElement('div');
-            div.className = 'mySlides fade';
-            let slideImg = document.createElement('img');
-            slideImg.src = src;
-            div.appendChild(slideImg);
-            container.appendChild(div);
-        }
-
-        function checkProgress() {
-            imagesProcessed++;
-            // משחרר את הכפתור ברגע שסיים לבדוק את כל התמונות (גם אם חלק חסרות)
-            if (imagesProcessed > totalImages) {
-                document.getElementById('btn').innerText = "לחצו כאן להתחלה";
-            }
+        function buildSlideshow() {
+            images.forEach(img => {
+                if (img.complete && img.naturalWidth !== 0) {
+                    let div = document.createElement('div');
+                    div.className = 'mySlides fade';
+                    let slideImg = document.createElement('img');
+                    slideImg.src = img.src;
+                    div.appendChild(slideImg);
+                    container.appendChild(div);
+                }
+            });
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('btn').style.display = 'block';
         }
 
         function startExperience() {
-            if (document.getElementById('btn').innerText === "טוען חוויות...") return;
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
-            const audio = document.getElementById('bgMusic');
-            audio.play().catch(e => console.log("Audio play failed"));
+            document.getElementById('bgMusic').play();
             showSlides();
         }
 
@@ -136,7 +129,7 @@
             setTimeout(showSlides, displayTime);
         }
 
-        preloadAndBuild();
+        init();
     </script>
 </body>
 </html>

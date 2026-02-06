@@ -22,7 +22,7 @@
     <div id="overlay">
         <h1 class="title">שחר & חנית</h1>
         <div class="tagline">20 שנות אהבה וביחד</div>
-        <p id="status" style="font-size: 1.1em; color: #ecf0f1;">אוסף את הרגעים שלנו...</p>
+        <p id="status" style="font-size: 1.1em; color: #ecf0f1;">מכין את ההפתעה...</p>
         <button id="btn" class="start-btn" style="display:none;" onclick="startExperience()">לחצו כאן להתחלה</button>
     </div>
     <audio id="bgMusic" src="music.mp3" loop></audio>
@@ -34,50 +34,28 @@
     <script>
         const totalImages = 19; 
         const container = document.getElementById('slideshow');
-        const extensions = ['JPG', 'jpg', 'png', 'PNG', 'jpeg']; // JPG ראשון כי זה הרוב אצלך
-        let processedCount = 0;
-        const finalImages = [];
+        let loadedCount = 0;
 
         function init() {
             for (let i = 0; i <= totalImages; i++) {
-                tryLoad(i, 0);
+                const img = new Image();
+                img.onload = img.onerror = () => {
+                    loadedCount++;
+                    document.getElementById('status').innerText = `טוען רגעים מתוקים... (${loadedCount}/20)`;
+                    if (loadedCount > totalImages) build();
+                };
+                img.src = `${i}.jpg`; // פה הקסם: הוא מחפש רק jpg קטן
+                
+                let div = document.createElement('div');
+                div.className = 'mySlides fade';
+                let slideImg = document.createElement('img');
+                slideImg.src = `${i}.jpg`;
+                div.appendChild(slideImg);
+                container.appendChild(div);
             }
-        }
-
-        function tryLoad(index, extIndex) {
-            if (extIndex >= extensions.length) {
-                processedCount++;
-                updateStatus();
-                return;
-            }
-            const img = new Image();
-            img.onload = function() {
-                finalImages[index] = img.src;
-                processedCount++;
-                updateStatus();
-            };
-            img.onerror = function() {
-                tryLoad(index, extIndex + 1);
-            };
-            img.src = `${index}.${extensions[extIndex]}`;
-        }
-
-        function updateStatus() {
-            document.getElementById('status').innerText = `מעבד רגע מתוק... (${processedCount}/20)`;
-            if (processedCount > totalImages) build();
         }
 
         function build() {
-            finalImages.forEach(src => {
-                if (src) {
-                    let div = document.createElement('div');
-                    div.className = 'mySlides fade';
-                    let slideImg = document.createElement('img');
-                    slideImg.src = src;
-                    div.appendChild(slideImg);
-                    container.appendChild(div);
-                }
-            });
             document.getElementById('status').style.display = 'none';
             document.getElementById('btn').style.display = 'block';
         }
@@ -85,14 +63,13 @@
         function startExperience() {
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
-            document.getElementById('bgMusic').play().catch(e => console.log("Music error"));
+            document.getElementById('bgMusic').play();
             showSlides();
         }
 
         let slideIndex = 0;
         function showSlides() {
             let slides = document.getElementsByClassName("mySlides");
-            if (slides.length === 0) return;
             for (let i = 0; i < slides.length; i++) slides[i].style.display = "none";
             slideIndex++;
             if (slideIndex > slides.length) slideIndex = 1;

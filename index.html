@@ -34,28 +34,53 @@
     <script>
         const totalImages = 19; 
         const container = document.getElementById('slideshow');
-        let loadedCount = 0;
+        let processedCount = 0;
+        const finalImages = [];
 
         function init() {
             for (let i = 0; i <= totalImages; i++) {
-                const img = new Image();
-                img.onload = img.onerror = () => {
-                    loadedCount++;
-                    document.getElementById('status').innerText = `טוען רגעים... (${loadedCount}/20)`;
-                    if (loadedCount > totalImages) build();
-                };
-                img.src = `${i}.jpg?v=${new Date().getTime()}`; // מכריח רענון של התמונה
+                tryLoad(i);
             }
+        }
+
+        function tryLoad(index) {
+            const img = new Image();
+            // ניסיון ראשון: jpg קטן
+            img.onload = () => {
+                finalImages[index] = img.src;
+                checkProgress();
+            };
+            img.onerror = () => {
+                // ניסיון שני: JPG גדול (זה מה שיפתור את 2, 10, 11, 17, 19)
+                const imgAlt = new Image();
+                imgAlt.onload = () => {
+                    finalImages[index] = imgAlt.src;
+                    checkProgress();
+                };
+                imgAlt.onerror = () => {
+                    checkProgress(); // מוותר על התמונה אם לא נמצאה בכלל
+                };
+                imgAlt.src = `${index}.JPG?v=${new Date().getTime()}`;
+            };
+            img.src = `${index}.jpg?v=${new Date().getTime()}`;
+        }
+
+        function checkProgress() {
+            processedCount++;
+            document.getElementById('status').innerText = `מעבד רגעים... (${processedCount}/20)`;
+            if (processedCount > totalImages) build();
         }
 
         function build() {
             for (let i = 0; i <= totalImages; i++) {
-                let div = document.createElement('div');
-                div.className = 'mySlides fade';
-                let slideImg = document.createElement('img');
-                slideImg.src = `${i}.jpg?v=${new Date().getTime()}`;
-                div.appendChild(slideImg);
-                container.appendChild(div);
+                if (finalImages[i]) {
+                    let div = document.createElement('div');
+                    div.className = 'mySlides fade';
+                    let slideImg = document.createElement('img');
+                    slideImg.src = finalImages[i];
+                    div.appendChild(slideImg);
+                    container.appendChild(div);
+                }
             }
             document.getElementById('status').style.display = 'none';
             document.getElementById('btn').style.display = 'block';

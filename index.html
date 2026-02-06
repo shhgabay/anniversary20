@@ -22,82 +22,64 @@
     <div id="overlay">
         <h1 class="title">שחר & חנית</h1>
         <div class="tagline">20 שנות אהבה וביחד</div>
-        <p id="status" style="font-size: 1.1em; color: #ecf0f1;">מכין את ההפתעה... (0/20)</p>
+        <p id="status">טוען את הרגעים היפים...</p>
         <button id="btn" class="start-btn" style="display:none;" onclick="startExperience()">לחצו כאן להתחלה</button>
     </div>
+
     <audio id="bgMusic" src="music.mp3" loop></audio>
+
     <div id="mainContent" style="display:none;">
         <div class="title">שחר & חנית</div>
         <div class="tagline">20 שנות אהבה וביחד</div>
-        <div id="slideshow" class="slideshow-container"></div>
+        <div class="slideshow-container">
+            <div class="mySlides fade"><img src="0.jpg"></div>
+            <div class="mySlides fade"><img src="1.jpg"></div>
+            <div class="mySlides fade"><img src="2.jpg"></div>
+            <div class="mySlides fade"><img src="3.jpg"></div>
+            <div class="mySlides fade"><img src="4.jpg"></div>
+            <div class="mySlides fade"><img src="5.jpg"></div>
+            <div class="mySlides fade"><img src="6.jpg"></div>
+            <div class="mySlides fade"><img src="7.jpg"></div>
+            <div class="mySlides fade"><img src="8.jpg"></div>
+            <div class="mySlides fade"><img src="9.jpg"></div>
+            <div class="mySlides fade"><img src="10.jpg"></div>
+            <div class="mySlides fade"><img src="11.jpg"></div>
+            <div class="mySlides fade"><img src="12.jpg"></div>
+            <div class="mySlides fade"><img src="13.jpg"></div>
+            <div class="mySlides fade"><img src="14.jpg"></div>
+            <div class="mySlides fade"><img src="15.jpg"></div>
+            <div class="mySlides fade"><img src="16.jpg"></div>
+            <div class="mySlides fade"><img src="17.jpg"></div>
+            <div class="mySlides fade"><img src="18.jpg"></div>
+            <div class="mySlides fade"><img src="19.jpg"></div>
+        </div>
     </div>
+
     <script>
-        const totalImages = 20; 
-        let loadedCount = 0;
-        const imagesToLoad = [];
-
-        function init() {
-            for (let i = 0; i < totalImages; i++) {
-                const img = new Image();
-                img.onload = () => {
-                    loadedCount++;
-                    document.getElementById('status').innerText = `טוען רגעים מתוקים... (${loadedCount}/20)`;
-                    if (loadedCount === totalImages) buildSlideshow();
-                };
-                img.onerror = () => {
-                    console.log("Error loading image " + i);
-                    loadedCount++;
-                    if (loadedCount === totalImages) buildSlideshow();
-                };
-                img.src = `${i}.jpg?v=${new Date().getTime()}`;
-                imagesToLoad[i] = img.src;
-            }
-        }
-
-        function buildSlideshow() {
-            const container = document.getElementById('slideshow');
-            container.innerHTML = ""; // מנקה הכל לפני בנייה מחדש
-            
-            for (let i = 0; i < totalImages; i++) {
-                if (imagesToLoad[i]) {
-                    const div = document.createElement('div');
-                    div.className = 'mySlides fade';
-                    const slideImg = document.createElement('img');
-                    slideImg.src = imagesToLoad[i];
-                    div.appendChild(slideImg);
-                    container.appendChild(div);
-                }
-            }
+        // הקוד מחכה שכל התמונות בדף יסיימו להיטען פיזית
+        window.onload = function() {
             document.getElementById('status').style.display = 'none';
             document.getElementById('btn').style.display = 'block';
-        }
+        };
 
         function startExperience() {
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             document.getElementById('bgMusic').play();
-            runSlides();
+            showSlides();
         }
 
         let slideIndex = 0;
-        function runSlides() {
-            const slides = document.getElementsByClassName("mySlides");
-            if (slides.length === 0) return;
-            
+        function showSlides() {
+            let slides = document.getElementsByClassName("mySlides");
             for (let i = 0; i < slides.length; i++) {
                 slides[i].style.display = "none";
             }
-            
             slideIndex++;
-            if (slideIndex > slides.length) slideIndex = 1;
-            
-            slides[slideIndex - 1].style.display = "block";
-            
-            // השקופית הראשונה נשארת יותר זמן (8 שניות), השאר 4 שניות
-            setTimeout(runSlides, slideIndex === 1 ? 8000 : 4000);
+            if (slideIndex > slides.length) {slideIndex = 1}
+            slides[slideIndex-1].style.display = "block";
+            setTimeout(showSlides, slideIndex === 1 ? 8000 : 4000);
         }
-
-        init();
     </script>
 </body>
 </html>

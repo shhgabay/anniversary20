@@ -22,47 +22,48 @@
     <div id="overlay">
         <h1 class="title">שחר & חנית</h1>
         <div class="tagline">20 שנות אהבה וביחד</div>
-        <p id="status" style="font-size: 1.1em; color: #ecf0f1;">מכין את ההפתעה...</p>
+        <p id="status" style="font-size: 1.1em; color: #ecf0f1;">מכין את ההפתעה... (0/20)</p>
         <button id="btn" class="start-btn" style="display:none;" onclick="startExperience()">לחצו כאן להתחלה</button>
     </div>
     <audio id="bgMusic" src="music.mp3" loop></audio>
     <div id="mainContent" style="display:none;">
         <div class="title">שחר & חנית</div>
         <div class="tagline">20 שנות אהבה וביחד</div>
-        <div class="slideshow-container" id="slideshow"></div>
+        <div id="slideshow" class="slideshow-container"></div>
     </div>
     <script>
-        const totalImages = 19; 
-        const container = document.getElementById('slideshow');
+        const totalImages = 20; 
         let loadedCount = 0;
-        const imagesArray = [];
+        const imagesToLoad = [];
 
         function init() {
-            for (let i = 0; i <= totalImages; i++) {
+            for (let i = 0; i < totalImages; i++) {
                 const img = new Image();
-                img.src = `${i}.jpg?v=${new Date().getTime()}`; // מונע זיכרון ישן
                 img.onload = () => {
-                    imagesArray[i] = img; // שומר את האובייקט הטעון במקום הנכון
                     loadedCount++;
                     document.getElementById('status').innerText = `טוען רגעים מתוקים... (${loadedCount}/20)`;
-                    if (loadedCount > totalImages) build();
+                    if (loadedCount === totalImages) buildSlideshow();
                 };
                 img.onerror = () => {
                     console.log("Error loading image " + i);
                     loadedCount++;
-                    if (loadedCount > totalImages) build();
+                    if (loadedCount === totalImages) buildSlideshow();
                 };
+                img.src = `${i}.jpg?v=${new Date().getTime()}`;
+                imagesToLoad[i] = img.src;
             }
         }
 
-        function build() {
-            // בונה את ה-Slideshow רק לפי מה שנטען בהצלחה ובסדר הנכון
-            for (let i = 0; i <= totalImages; i++) {
-                if (imagesArray[i]) {
-                    let div = document.createElement('div');
+        function buildSlideshow() {
+            const container = document.getElementById('slideshow');
+            container.innerHTML = ""; // מנקה הכל לפני בנייה מחדש
+            
+            for (let i = 0; i < totalImages; i++) {
+                if (imagesToLoad[i]) {
+                    const div = document.createElement('div');
                     div.className = 'mySlides fade';
-                    let slideImg = document.createElement('img');
-                    slideImg.src = imagesArray[i].src;
+                    const slideImg = document.createElement('img');
+                    slideImg.src = imagesToLoad[i];
                     div.appendChild(slideImg);
                     container.appendChild(div);
                 }
@@ -75,20 +76,27 @@
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             document.getElementById('bgMusic').play();
-            showSlides();
+            runSlides();
         }
 
         let slideIndex = 0;
-        function showSlides() {
-            let slides = document.getElementsByClassName("mySlides");
+        function runSlides() {
+            const slides = document.getElementsByClassName("mySlides");
             if (slides.length === 0) return;
-            for (let i = 0; i < slides.length; i++) slides[i].style.display = "none";
+            
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            
             slideIndex++;
             if (slideIndex > slides.length) slideIndex = 1;
-            slides[slideIndex-1].style.display = "block";
-            // תמונה ראשונה מוצגת 8 שניות, השאר 4 שניות
-            setTimeout(showSlides, slideIndex === 1 ? 8000 : 4000);
+            
+            slides[slideIndex - 1].style.display = "block";
+            
+            // השקופית הראשונה נשארת יותר זמן (8 שניות), השאר 4 שניות
+            setTimeout(runSlides, slideIndex === 1 ? 8000 : 4000);
         }
+
         init();
     </script>
 </body>

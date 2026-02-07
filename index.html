@@ -9,100 +9,110 @@
         body { background: #000; color: white; font-family: 'MyCustomFont', sans-serif; text-align: center; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; justify-content: center; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 20; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
         .start-btn { padding: 15px 35px; font-size: 1.3em; font-family: inherit; background: #f1c40f; color: black; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px rgba(241, 196, 15, 0.5); margin-top: 20px; }
-        .title { font-size: 10vw; font-weight: bold; color: #f1c40f; text-shadow: 2px 2px 15px rgba(241, 196, 15, 0.4); margin: 5px 0; }
-        .tagline { font-size: 6vw; color: #ffffff; opacity: 0.9; margin-bottom: 20px; font-style: italic; }
-        .slideshow-container { position: relative; width: 100vw; height: 70vh; margin: auto; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .mySlides { display: none; width: 100%; height: 100%; }
-        img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; margin: auto; display: block; }
-        .fade { animation: fadeEffect 1.5s ease-in-out; }
+        .title { font-size: 8vw; font-weight: bold; color: #f1c40f; text-shadow: 2px 2px 15px rgba(241, 196, 15, 0.4); margin: 5px 0; }
+        .slideshow-container { position: relative; width: 100vw; height: 80vh; margin: auto; display: flex; align-items: center; justify-content: center; }
+        .slide { display: none; width: 100%; height: 100%; flex-direction: column; justify-content: center; align-items: center; position: relative; }
+        img { max-width: 90%; max-height: 80%; object-fit: contain; border: 3px solid #f1c40f; border-radius: 10px; }
+        
+        /* האיקס האדום */
+        #red-x {
+            position: absolute; display: none;
+            color: red; font-size: 60vw; font-weight: bold;
+            text-shadow: 0 0 30px black; z-index: 10;
+            line-height: 1; pointer-events: none;
+        }
+
+        .typewriter-text { font-size: 8vw; color: #f1c40f; padding: 20px; min-height: 1.2em; line-height: 1.4; }
+        .cursor { border-left: 3px solid #f1c40f; margin-right: 5px; animation: blink 0.7s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        .fade { animation: fadeEffect 1.5s; }
         @keyframes fadeEffect { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
     <div id="overlay">
         <h1 class="title">שחר & חנית</h1>
-        <div class="tagline">20 שנות אהבה וביחד</div>
-        <p id="status">טוען את הרגעים היפים...</p>
+        <p id="status">טוענים את הרגעים היפים...</p>
         <button id="btn" class="start-btn" style="display:none;" onclick="startExperience()">לחצו כאן להתחלה</button>
     </div>
     <audio id="bgMusic" src="music.mp3" loop></audio>
+
     <div id="mainContent" style="display:none;">
-        <div class="title">שחר & חנית</div>
-        <div class="tagline">20 שנות אהבה וביחד</div>
-        <div id="slideshow" class="slideshow-container"></div>
+        <div id="slideContent" class="slide fade"></div>
+        <div id="red-x">X</div>
     </div>
+
     <script>
-        const totalImages = 19; 
-        const container = document.getElementById('slideshow');
-        let processedCount = 0;
-        const finalImages = [];
-
-        function init() {
-            for (let i = 0; i <= totalImages; i++) {
-                tryLoad(i);
-            }
-        }
-
-        function tryLoad(index) {
-            const img = new Image();
-            // ניסיון ראשון: jpg קטן
-            img.onload = () => {
-                finalImages[index] = img.src;
-                checkProgress();
-            };
-            img.onerror = () => {
-                // ניסיון שני: JPG גדול (זה מה שיפתור את 2, 10, 11, 17, 19)
-                const imgAlt = new Image();
-                imgAlt.onload = () => {
-                    finalImages[index] = imgAlt.src;
-                    checkProgress();
-                };
-                imgAlt.onerror = () => {
-                    checkProgress(); // מוותר על התמונה אם לא נמצאה בכלל
-                };
-                imgAlt.src = `${index}.JPG?v=${new Date().getTime()}`;
-            };
-            img.src = `${index}.jpg?v=${new Date().getTime()}`;
-        }
-
-        function checkProgress() {
-            processedCount++;
-            document.getElementById('status').innerText = `מעבד רגעים... (${processedCount}/20)`;
-            if (processedCount > totalImages) build();
-        }
-
-        function build() {
-            for (let i = 0; i <= totalImages; i++) {
-                if (finalImages[i]) {
-                    let div = document.createElement('div');
-                    div.className = 'mySlides fade';
-                    let slideImg = document.createElement('img');
-                    slideImg.src = finalImages[i];
-                    div.appendChild(slideImg);
-                    container.appendChild(div);
-                }
-            }
-            document.getElementById('status').style.display = 'none';
-            document.getElementById('btn').style.display = 'block';
-        }
+        const contentMap = {
+            20: "והפירות של אהבתנו...",
+            26: "זוכרת את הבושם מהחדר ייחוד???",
+            28: "הבטחתי וקיימתי!",
+            30: "ועד 120 שנות אהבה..."
+        };
+        const maxIndex = 30;
+        let currentIndex = 0;
 
         function startExperience() {
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             document.getElementById('bgMusic').play();
-            showSlides();
+            nextSlide();
         }
 
-        let slideIndex = 0;
-        function showSlides() {
-            let slides = document.getElementsByClassName("mySlides");
-            for (let i = 0; i < slides.length; i++) slides[i].style.display = "none";
-            slideIndex++;
-            if (slideIndex > slides.length) slideIndex = 1;
-            slides[slideIndex-1].style.display = "block";
-            setTimeout(showSlides, slideIndex === 1 ? 8000 : 4000);
+        function nextSlide() {
+            const container = document.getElementById('slideContent');
+            const xLabel = document.getElementById('red-x');
+            container.style.display = 'none';
+            xLabel.style.display = 'none';
+            container.innerHTML = '';
+
+            if (currentIndex > maxIndex) { currentIndex = 0; }
+
+            if (contentMap[currentIndex]) {
+                container.style.display = 'flex';
+                const textWrapper = document.createElement('div');
+                textWrapper.className = 'typewriter-text';
+                container.appendChild(textWrapper);
+                typeWriter(contentMap[currentIndex], textWrapper, () => {
+                    setTimeout(() => { currentIndex++; nextSlide(); }, 3500);
+                });
+            } else {
+                const img = new Image();
+                img.src = `${currentIndex}.jpg?v=${new Date().getTime()}`;
+                img.onload = () => {
+                    container.style.display = 'flex';
+                    container.innerHTML = `<img src="${img.src}">`;
+                    
+                    // אפקט מיוחד לתמונה 27 (הבושם)
+                    if (currentIndex === 27) {
+                        setTimeout(() => { xLabel.style.display = 'block'; }, 2000); // איקס מופיע אחרי 2 שניות
+                        setTimeout(() => { currentIndex++; nextSlide(); }, 6000); // נשאר עוד קצת זמן
+                    } else {
+                        setTimeout(() => { currentIndex++; nextSlide(); }, 5000);
+                    }
+                };
+                img.onerror = () => { currentIndex++; nextSlide(); };
+            }
         }
-        init();
+
+        function typeWriter(text, element, callback) {
+            let i = 0;
+            element.innerHTML = '<span id="typing"></span><span class="cursor"></span>';
+            const target = document.getElementById('typing');
+            function typing() {
+                if (i < text.length) {
+                    target.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(typing, 100);
+                } else if (callback) { callback(); }
+            }
+            typing();
+        }
+
+        window.onload = () => {
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('btn').style.display = 'block';
+        };
     </script>
 </body>
 </html>

@@ -7,39 +7,47 @@
     <style>
         @font-face { font-family: 'MyCustomFont'; src: url('myfont.otf') format('opentype'); }
         body { background: #000; color: white; font-family: 'MyCustomFont', sans-serif; text-align: center; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+        
+        /* כותרת קבועה למעלה */
+        .fixed-header { position: fixed; top: 10px; width: 100%; z-index: 5; }
+        .main-title { font-size: 6vw; font-weight: bold; color: #f1c40f; text-shadow: 2px 2px 10px rgba(241, 196, 15, 0.5); margin: 0; }
+        
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 20; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
         .start-btn { padding: 15px 35px; font-size: 1.3em; font-family: inherit; background: #f1c40f; color: black; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px rgba(241, 196, 15, 0.5); margin-top: 20px; }
-        .title { font-size: 8vw; font-weight: bold; color: #f1c40f; text-shadow: 2px 2px 15px rgba(241, 196, 15, 0.4); margin: 5px 0; }
-        .slideshow-container { position: relative; width: 100vw; height: 80vh; margin: auto; display: flex; align-items: center; justify-content: center; }
+        
+        .slideshow-container { position: relative; width: 100vw; height: 75vh; margin-top: 60px; display: flex; align-items: center; justify-content: center; }
         .slide { display: none; width: 100%; height: 100%; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-        img { max-width: 90%; max-height: 80%; object-fit: contain; border: 3px solid #f1c40f; border-radius: 10px; }
+        
+        img { max-width: 85%; max-height: 75%; object-fit: contain; border: 2px solid #f1c40f; border-radius: 10px; box-shadow: 0 0 20px rgba(241,196,15,0.2); }
         
         /* האיקס האדום */
-        #red-x {
-            position: absolute; display: none;
-            color: red; font-size: 60vw; font-weight: bold;
-            text-shadow: 0 0 30px black; z-index: 10;
-            line-height: 1; pointer-events: none;
-        }
+        #red-x { position: absolute; display: none; color: #e74c3c; font-size: 50vw; font-weight: bold; text-shadow: 0 0 20px black; z-index: 10; pointer-events: none; top: 50%; left: 50%; transform: translate(-50%, -50%); }
 
-        .typewriter-text { font-size: 8vw; color: #f1c40f; padding: 20px; min-height: 1.2em; line-height: 1.4; }
+        .typewriter-text { font-size: 7vw; color: #f1c40f; padding: 20px; min-height: 1.2em; line-height: 1.4; text-shadow: 1px 1px 5px rgba(0,0,0,0.5); }
         .cursor { border-left: 3px solid #f1c40f; margin-right: 5px; animation: blink 0.7s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
-        .fade { animation: fadeEffect 1.5s; }
+        .fade { animation: fadeEffect 1s; }
         @keyframes fadeEffect { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
     <div id="overlay">
-        <h1 class="title">שחר & חנית</h1>
-        <p id="status">טוענים את הרגעים היפים...</p>
+        <h1 class="main-title">שחר & חנית</h1>
+        <p id="status">מכינים את ההפתעה...</p>
         <button id="btn" class="start-btn" style="display:none;" onclick="startExperience()">לחצו כאן להתחלה</button>
     </div>
+
+    <div class="fixed-header" id="header" style="display:none;">
+        <h1 class="main-title">שחר & חנית - 20 שנות אהבה</h1>
+    </div>
+
     <audio id="bgMusic" src="music.mp3" loop></audio>
 
     <div id="mainContent" style="display:none;">
-        <div id="slideContent" class="slide fade"></div>
-        <div id="red-x">X</div>
+        <div class="slideshow-container">
+            <div id="slideContent" class="slide fade"></div>
+            <div id="red-x">X</div>
+        </div>
     </div>
 
     <script>
@@ -54,6 +62,7 @@
 
         function startExperience() {
             document.getElementById('overlay').style.display = 'none';
+            document.getElementById('header').style.display = 'block';
             document.getElementById('mainContent').style.display = 'block';
             document.getElementById('bgMusic').play();
             nextSlide();
@@ -82,11 +91,9 @@
                 img.onload = () => {
                     container.style.display = 'flex';
                     container.innerHTML = `<img src="${img.src}">`;
-                    
-                    // אפקט מיוחד לתמונה 27 (הבושם)
                     if (currentIndex === 27) {
-                        setTimeout(() => { xLabel.style.display = 'block'; }, 2000); // איקס מופיע אחרי 2 שניות
-                        setTimeout(() => { currentIndex++; nextSlide(); }, 6000); // נשאר עוד קצת זמן
+                        setTimeout(() => { xLabel.style.display = 'block'; }, 2000);
+                        setTimeout(() => { currentIndex++; nextSlide(); }, 6000);
                     } else {
                         setTimeout(() => { currentIndex++; nextSlide(); }, 5000);
                     }
